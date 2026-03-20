@@ -1,0 +1,26 @@
+/* ── Hide default cursor globally when custom cursor is active ─── */
+.custom-cursor,
+.custom-cursor * {
+  cursor: none !important;
+}
+
+/* ── Custom cursor dot ──────────────────────────────────────────── */
+#cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px; /* centre the dot on the pointer position */
+  border-radius: 50%;
+  border: 2px solid #e8441a;
+  background: transparent;
+  pointer-events: none;
+  z-index: 10000;
+  transition: background 80ms ease, opacity 120ms ease;
+  will-change: left, top;
+}
+
+#cursor.is-active {
+  background: #e8441a;
+}

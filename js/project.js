@@ -3,9 +3,11 @@ import { enterPage, leavePage } from './transition.js';
 import { projects, industries } from './data.js';
 import { initReader } from './reader.js';
 import { prefersLessMotion } from './motion.js';
+import { initCursor } from './cursor.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   enterPage();
+  initCursor();
   initNav();
 
   initProjectFromSelection();

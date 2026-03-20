@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Get in touch with Carnevale — design & development agency" />
-  <title>Contact — Carnevale</title>
+  <meta name="description" content="What we make real — Carnevale design & development agency" />
+  <title>What we make real — Carnevale</title>
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <!-- Set page state before first paint -->
@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="css/cursor.css" />
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/nav.css" />
-  <link rel="stylesheet" href="css/contact.css" />
+  <link rel="stylesheet" href="css/services.css" />
 </head>
 <body>
 
@@ -86,53 +86,44 @@
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       Contact page
+       Services page
   ════════════════════════════════════════════════════════════════ -->
-  <main class="contact">
+  <main class="services">
+    <div class="services__scene">
 
-    <!-- ── Hero: typewriter + action buttons ── -->
-    <div class="contact__hero">
-      <div class="contact__scene">
+      <p
+        class="services__statement"
+        aria-label="We turn ambitious ideas into real-world digital experiences through technology, design, and software development. What mediums or services are you most interested in?"
+      ></p>
 
-        <p
-          class="contact__prompt"
-          aria-label="Hey, we're ready to connect in a number of ways. What works best for you?"
-        ></p>
-
-        <div class="contact__actions" aria-hidden="true">
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">01</span>
-            <span class="contact__btn-label">Send a quick message</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">02</span>
-            <span class="contact__btn-label">Schedule a video chat with Mike</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">03</span>
-            <span class="contact__btn-label">Request a quote</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">04</span>
-            <span class="contact__btn-label">Plan a free, in-person consultation meeting</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="faq.html" class="contact__btn" data-transition>
-            <span class="contact__btn-num" aria-hidden="true">05</span>
-            <span class="contact__btn-label">Show me FAQs</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-        </div>
-
+      <div class="services__pills" aria-hidden="true">
+        <button class="services__pill" type="button" data-service="strategy">Strategy</button>
+        <button class="services__pill" type="button" data-service="web-experience">Web Experience</button>
+        <button class="services__pill" type="button" data-service="enterprise-software">Enterprise Software</button>
+        <button class="services__pill" type="button" data-service="extended-reality">Extended Reality</button>
+        <button class="services__pill" type="button" data-service="physical-exhibits">Physical Exhibits</button>
+        <button class="services__pill" type="button" data-service="iot">IoT</button>
+        <button class="services__pill" type="button" data-service="digital-accessibility">Digital Accessibility</button>
+        <button class="services__pill" type="button" data-service="mobile-apps">Mobile Apps</button>
+        <button class="services__pill" type="button" data-service="customer-research">Customer Research</button>
       </div>
-    </div>
 
+      <div class="services__actions" aria-hidden="true">
+        <button id="services-mic" type="button" class="services__mic" aria-label="Voice input">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <rect x="7" y="1" width="6" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M4,10 Q10,16 16,10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="10" y1="16" x2="10" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="7" y1="19" x2="13" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a href="index.html" class="services__skip">Skip</a>
+      </div>
+
+    </div>
   </main>
 
-  <script type="module" src="js/contact.js"></script>
+  <script type="module" src="js/services.js"></script>
 
 </body>
 </html>

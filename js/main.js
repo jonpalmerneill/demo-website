@@ -1,15 +1,17 @@
+import { initCursor } from './cursor.js';
 import { projects, industries } from './data.js';
 import { renderCards, animateIntro } from './cards.js';
 import { initCanvas } from './canvas.js';
 import { initFilter }  from './filter.js';
 import { initNav }     from './nav.js';
-import { initOverlay, initNavPrompt } from './overlay.js';
+import { initOverlay } from './overlay.js';
 import { initProximity } from './proximity.js';
 import { initDrift }   from './drift.js';
 import { enterPage, leavePage } from './transition.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   enterPage();
+  initCursor();
   const viewport = document.getElementById('viewport');
   const canvas   = document.getElementById('canvas');
 
@@ -100,19 +102,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // 9. Nav
   const nav = initNav();
 
+  // Nav prompt link → services page
+  const navPromptLink = document.querySelector('.nav__prompt-text[data-transition]');
+  if (navPromptLink) {
+    navPromptLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      leavePage('services.html');
+    });
+  }
+
   // 10. Overlay
   let showOverlayFn = null;
   initOverlay(industries, (showFn) => { showOverlayFn = showFn; });
   if (showOverlayFn) showOverlayFn();
 
-  // 11. Nav prompt (re-open search inside the full-screen menu)
-  initNavPrompt(
-    {
-      input:    document.getElementById('nav-prompt-input'),
-      dropdown: document.getElementById('nav-prompt-autocomplete'),
-      micBtn:   document.getElementById('nav-prompt-mic'),
-    },
-    industries,
-    nav ? nav.close : null
-  );
+  // Clicking anywhere in the overlay navigates to the services page
+  const overlayEl = document.getElementById('overlay');
+  if (overlayEl) {
+    overlayEl.addEventListener('click', (e) => {
+      if (e.target.closest('#overlay-dismiss')) return;
+      leavePage('services.html');
+    });
+  }
+
 });

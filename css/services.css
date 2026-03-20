@@ -1,0 +1,188 @@
+/* ── Page base ─────────────────────────────────────────────────── */
+html, body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+}
+
+#nav-logo {
+  opacity: 1;
+}
+
+/* ── Back link ─────────────────────────────────────────────────── */
+.project-back {
+  position: fixed;
+  top: var(--space-6);
+  left: var(--space-8);
+  z-index: 400;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--c-text-muted);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.project-back:hover {
+  color: var(--c-text);
+}
+
+.project-back svg {
+  width: 22px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .project-back span { display: none; }
+}
+
+/* ── Scene ──────────────────────────────────────────────────────── */
+.services {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 80px 0 var(--space-16);
+}
+
+.services__scene {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 var(--space-8);
+}
+
+/* ── Statement (typewriter target) ─────────────────────────────── */
+.services__statement {
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 3.4vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
+  margin-bottom: var(--space-12);
+  min-height: 5em;
+}
+
+
+/* ── Pills ──────────────────────────────────────────────────────── */
+.services__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+}
+
+.services__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 22px;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 400;
+  color: var(--c-text);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color        var(--dur-fast) var(--ease-smooth),
+    background   var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.services__pill:hover {
+  color: var(--c-text);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] .services__pill:hover {
+  border-color: var(--c-text-muted);
+}
+
+.services__pill.is-selected {
+  background: var(--c-text);
+  color: var(--c-bg);
+  border-color: var(--c-text);
+}
+
+/* ── Actions row (mic + skip) ───────────────────────────────────── */
+.services__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.services__mic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  transition:
+    color       var(--dur-fast) var(--ease-smooth),
+    background  var(--dur-fast) var(--ease-smooth);
+}
+
+.services__mic svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.services__mic:hover {
+  color: var(--c-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .services__mic:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.services__mic.is-speaking {
+  color: var(--c-text);
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+
+.services__mic.is-listening {
+  color: var(--c-text);
+  animation: mic-pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.services__skip {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--c-text-muted);
+  opacity: 0.45;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: opacity var(--dur-fast) var(--ease-smooth);
+}
+
+.services__skip:hover {
+  opacity: 0.8;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .services {
+    padding-top: 90px;
+  }
+
+  .services__statement {
+    margin-bottom: var(--space-8);
+  }
+}

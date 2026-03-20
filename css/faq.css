@@ -1,0 +1,166 @@
+/* ── Page base ─────────────────────────────────────────────────── */
+html, body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+}
+
+/* C logo always visible on this page */
+#nav-logo {
+  opacity: 1;
+}
+
+/* ── Back link ─────────────────────────────────────────────────── */
+.project-back {
+  position: fixed;
+  top: var(--space-6);
+  left: var(--space-8);
+  z-index: 400;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--c-text-muted);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.project-back:hover {
+  color: var(--c-text);
+}
+
+.project-back svg {
+  width: 22px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .project-back span { display: none; }
+}
+
+/* ── Scene width ────────────────────────────────────────────────── */
+.faq__scene {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 120px var(--space-8) var(--space-16);
+}
+
+/* ── Heading ────────────────────────────────────────────────────── */
+.faq__heading {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
+  margin-bottom: var(--space-12);
+  min-height: 1.2em; /* reserves space while typing */
+}
+
+
+/* ── FAQ list ───────────────────────────────────────────────────── */
+.faq__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.faq__item {
+  border-top: 1px solid var(--c-border);
+}
+
+.faq__item:last-child {
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* ── Toggle button ──────────────────────────────────────────────── */
+.faq__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-6) 0;
+  background: none;
+  border: none;
+  color: var(--c-text);
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.faq__toggle:hover {
+  color: var(--c-text-muted);
+}
+
+/* ── Plus/minus icon ────────────────────────────────────────────── */
+.faq__icon {
+  flex-shrink: 0;
+  position: relative;
+  width: 16px;
+  height: 16px;
+}
+
+.faq__icon::before,
+.faq__icon::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth);
+}
+
+/* horizontal bar */
+.faq__icon::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+
+/* vertical bar */
+.faq__icon::after {
+  top: 0;
+  left: 50%;
+  width: 1.5px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+/* Rotate vertical bar away when open */
+.faq__item.is-open .faq__icon::after {
+  transform: translateX(-50%) rotate(90deg);
+  opacity: 0;
+}
+
+/* ── Answer ─────────────────────────────────────────────────────── */
+.faq__answer {
+  overflow: hidden;
+  height: 0; /* GSAP animates this */
+}
+
+.faq__answer-inner {
+  padding-bottom: var(--space-6);
+}
+
+.faq__answer-inner p {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--c-text-muted);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .faq__scene {
+    padding-top: 100px;
+  }
+}

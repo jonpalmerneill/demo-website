@@ -282,6 +282,11 @@
   color: var(--c-text-muted);
   text-align: center;
   line-height: 1.4;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.nav__prompt-text:hover {
+  color: var(--c-text);
 }
 
 .nav__prompt-input-row {

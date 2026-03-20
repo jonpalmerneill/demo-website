@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Get in touch with Carnevale — design & development agency" />
-  <title>Contact — Carnevale</title>
+  <meta name="description" content="Frequently asked questions — Carnevale design & development agency" />
+  <title>FAQs — Carnevale</title>
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <!-- Set page state before first paint -->
@@ -34,12 +34,12 @@
   <link rel="stylesheet" href="css/cursor.css" />
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/nav.css" />
-  <link rel="stylesheet" href="css/contact.css" />
+  <link rel="stylesheet" href="css/faq.css" />
 </head>
 <body>
 
-  <!-- Back to gallery -->
-  <a href="index.html" class="project-back" aria-label="Back to gallery">
+  <!-- Back to contact -->
+  <a href="contact.html" class="project-back" aria-label="Back to contact">
     <svg viewBox="0 0 22 10" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
       <line x1="20" y1="5" x2="2" y2="5" stroke-linecap="round" />
       <polyline points="7,1 2,5 7,9" stroke-linecap="round" stroke-linejoin="round" />
@@ -86,53 +86,79 @@
   </nav>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       Contact page
+       FAQ page
   ════════════════════════════════════════════════════════════════ -->
-  <main class="contact">
+  <main class="faq">
+    <div class="faq__scene">
 
-    <!-- ── Hero: typewriter + action buttons ── -->
-    <div class="contact__hero">
-      <div class="contact__scene">
+      <h1
+        class="faq__heading"
+        aria-label="Frequently asked questions"
+      ></h1>
 
-        <p
-          class="contact__prompt"
-          aria-label="Hey, we're ready to connect in a number of ways. What works best for you?"
-        ></p>
+      <dl class="faq__list">
 
-        <div class="contact__actions" aria-hidden="true">
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">01</span>
-            <span class="contact__btn-label">Send a quick message</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">02</span>
-            <span class="contact__btn-label">Schedule a video chat with Mike</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">03</span>
-            <span class="contact__btn-label">Request a quote</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="#" class="contact__btn">
-            <span class="contact__btn-num" aria-hidden="true">04</span>
-            <span class="contact__btn-label">Plan a free, in-person consultation meeting</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
-          <a href="faq.html" class="contact__btn" data-transition>
-            <span class="contact__btn-num" aria-hidden="true">05</span>
-            <span class="contact__btn-label">Show me FAQs</span>
-            <span class="contact__btn-arrow" aria-hidden="true">→</span>
-          </a>
+        <div class="faq__item">
+          <dt>
+            <button class="faq__toggle" aria-expanded="false">
+              <span>How much does a project cost?</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </button>
+          </dt>
+          <dd class="faq__answer">
+            <div class="faq__answer-inner">
+              <p>Our projects vary in scope and investment. A focused branding engagement typically starts around $8,000, while full design and development projects range from $20,000 to $80,000+. We work transparently and tailor every proposal to what you actually need — no bloated retainers, no surprise invoices.</p>
+            </div>
+          </dd>
         </div>
 
-      </div>
-    </div>
+        <div class="faq__item">
+          <dt>
+            <button class="faq__toggle" aria-expanded="false">
+              <span>How long do projects take?</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </button>
+          </dt>
+          <dd class="faq__answer">
+            <div class="faq__answer-inner">
+              <p>Most projects land between 4 and 12 weeks depending on complexity. A brand identity refresh might wrap in a month; a full product build takes longer. We'll give you a realistic timeline in our first conversation — and we stick to it.</p>
+            </div>
+          </dd>
+        </div>
 
+        <div class="faq__item">
+          <dt>
+            <button class="faq__toggle" aria-expanded="false">
+              <span>What do you need to know to start a project?</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </button>
+          </dt>
+          <dd class="faq__answer">
+            <div class="faq__answer-inner">
+              <p>The more context the better, but you don't need to have it all figured out. A rough sense of what you're building, who it's for, and your timeline is enough to get started. We'll ask the right questions and help shape the rest — that's part of what we do.</p>
+            </div>
+          </dd>
+        </div>
+
+        <div class="faq__item">
+          <dt>
+            <button class="faq__toggle" aria-expanded="false">
+              <span>What technologies and tools do you specialise in?</span>
+              <span class="faq__icon" aria-hidden="true"></span>
+            </button>
+          </dt>
+          <dd class="faq__answer">
+            <div class="faq__answer-inner">
+              <p>On the design side we work in Figma for everything from early concepts to production-ready specs. On the development side we're comfortable across the modern web stack — React, Next.js, TypeScript, and custom CMS implementations. We pick the right tool for the job, not the trendiest one.</p>
+            </div>
+          </dd>
+        </div>
+
+      </dl>
+    </div>
   </main>
 
-  <script type="module" src="js/contact.js"></script>
+  <script type="module" src="js/faq.js"></script>
 
 </body>
 </html>

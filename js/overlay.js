@@ -326,7 +326,6 @@ export function initOverlay(industries, onShow) {
       gsap.set(overlay,                              { opacity: 1, y: 0 });
       gsap.set(scrim,                                { opacity: 1 });
       gsap.set([inputRow, dismiss, micBtn].filter(Boolean), { opacity: 1 });
-      input.focus();
       return;
     }
 
@@ -366,8 +365,6 @@ export function initOverlay(industries, onShow) {
       { opacity: 1, duration: 0.5, ease: 'power2.out', onComplete: startTypewriter },
       '>+0.3'
     );
-
-    input.focus();
 
     gsap.fromTo(scrim,
       { opacity: 0 },

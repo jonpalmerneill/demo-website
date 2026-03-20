@@ -17,6 +17,9 @@
 
   /* Initial hidden state — GSAP will animate in */
   opacity: 0;
+
+  cursor: pointer;
+  user-select: none;
 }
 
 /* Gradient ribbon that fades the top edge into the page */
@@ -44,6 +47,7 @@
 .overlay__input-row {
   position: relative;
   flex: 1 1 260px;
+  pointer-events: none;
 }
 
 .overlay__input {
