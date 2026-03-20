@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Carnevale — Design &amp; Development Agency" />
+  <title>Carnevale</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Set page state before first paint: theme + transition starting class -->
+  <script>
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.dataset.theme = 'light';
+    }
+    if (localStorage.getItem('less-motion') === 'on') {
+      document.documentElement.classList.add('is-less-motion');
+    }
+    document.documentElement.classList.add('is-entering');
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- GSAP (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Fuse.js fuzzy search (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/card.css" />
+  <link rel="stylesheet" href="css/overlay.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/filter-bar.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════════
+       Viewport + Canvas
+  ═════════════════════════════════════════════════════════════ -->
+  <div id="viewport" class="viewport">
+    <div id="canvas" class="canvas"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       Filter Bar (slides in at zoom threshold)
+  ═════════════════════════════════════════════════════════════ -->
+  <div id="filter-bar" role="toolbar" aria-label="Filter by industry"></div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       Navigation — C Logo + Full-Screen Menu
+  ═════════════════════════════════════════════════════════════ -->
+  <!-- Intro wordmark — visible on load, transitions to C logo after 5s -->
+  <div id="nav-logo-intro" aria-hidden="true">
+    <img src="logo-white.png" alt="Carnevale" />
+  </div>
+
+  <button
+    id="nav-logo"
+    aria-label="Open navigation"
+    aria-expanded="false"
+  >
+    <img src="favicon.png" alt="Carnevale" aria-hidden="true" />
+    <svg class="nav-logo__close" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <line x1="5" y1="5" x2="15" y2="15" stroke-linecap="round"/>
+      <line x1="15" y1="5" x2="5" y2="15" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <nav id="nav-menu" aria-label="Site navigation">
+    <div class="nav__prompt">
+      <p class="nav__prompt-text">What would you like to build?</p>
+      <div class="nav__prompt-input-row">
+        <input
+          type="text"
+          id="nav-prompt-input"
+          class="nav__prompt-input"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search by industry"
+          placeholder="Type an industry…"
+        />
+        <button id="nav-prompt-mic" type="button" class="nav__prompt-mic" aria-label="Voice input">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <rect x="7" y="1" width="6" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M4,10 Q10,16 16,10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="10" y1="16" x2="10" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="7" y1="19" x2="13" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div id="nav-prompt-autocomplete" class="nav__prompt-autocomplete" role="listbox"></div>
+      </div>
+    </div>
+
+    <ul class="nav__items">
+      <li><a class="nav__item" href="#">Work</a></li>
+      <li><a class="nav__item" href="#">Studio</a></li>
+      <li><a class="nav__item" href="#">Services</a></li>
+      <li><a class="nav__item" href="contact.html">Contact</a></li>
+    </ul>
+
+    <div class="nav__footer">
+      <div class="nav__footer-links">
+        <a class="nav__footer-link" href="#">Instagram</a>
+        <a class="nav__footer-link" href="#">LinkedIn</a>
+        <a class="nav__footer-link" href="#">&copy; 2024 Carnevale</a>
+      </div>
+      <div class="nav__footer-controls">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle colour scheme">
+          <span class="theme-toggle__track">
+            <span class="theme-toggle__thumb"></span>
+          </span>
+          <span class="theme-toggle__label">Dark Mode</span>
+        </button>
+        <label class="less-motion-toggle" for="less-motion-checkbox">
+          <input type="checkbox" id="less-motion-checkbox" class="less-motion-toggle__input" />
+          <span class="less-motion-toggle__box"></span>
+          <span class="less-motion-toggle__label">Less Motion</span>
+        </label>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════════
+       Intro Overlay
+  ═════════════════════════════════════════════════════════════ -->
+  <div id="overlay-scrim" aria-hidden="true"></div>
+
+  <div
+    id="overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="overlay-headline"
+  >
+    <p class="overlay__text" id="overlay-headline">
+      What would you like to build?
+    </p>
+
+    <div class="overlay__input-row">
+      <input
+        type="text"
+        id="overlay-input"
+        class="overlay__input"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search by industry"
+        aria-autocomplete="list"
+        aria-controls="overlay-autocomplete"
+      />
+      <div id="overlay-placeholder" class="overlay__placeholder" aria-hidden="true"></div>
+      <div
+        id="overlay-autocomplete"
+        class="overlay__autocomplete"
+        role="listbox"
+        aria-label="Industry suggestions"
+      ></div>
+    </div>
+
+    <button id="overlay-mic" type="button" aria-label="Voice input">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="7" y="1" width="6" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M4,10 Q10,16 16,10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="10" y1="16" x2="10" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="7" y1="19" x2="13" y2="19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <button class="overlay__dismiss" id="overlay-dismiss" type="button" aria-label="Close">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="5" y1="5" x2="15" y2="15" stroke-linecap="round"/>
+        <line x1="15" y1="5" x2="5" y2="15" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       Module entry point
+  ═════════════════════════════════════════════════════════════ -->
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>

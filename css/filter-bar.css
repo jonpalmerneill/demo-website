@@ -1,0 +1,148 @@
+/* Filter / sort bar — anchored to bottom of viewport */
+/* Dark mode: black text on white background */
+#filter-bar {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+
+  /* Hidden initially — GSAP animates in */
+  opacity: 0;
+  pointer-events: none;
+}
+
+#filter-bar.is-visible {
+  pointer-events: auto;
+}
+
+.filter-bar__label {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.5);
+  margin-right: var(--space-2);
+  white-space: nowrap;
+}
+
+/* Filter pills */
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
+  color: #000000;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth),
+    background var(--dur-fast) var(--ease-smooth);
+}
+
+.filter-pill:hover {
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.filter-pill[aria-pressed="true"] {
+  color: #ffffff;
+  background: #000000;
+  border: 1px solid #000000;
+}
+
+/* Light mode: white text on black background */
+[data-theme="light"] #filter-bar {
+  background: #000000;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .filter-bar__label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="light"] .filter-pill {
+  color: #ffffff;
+}
+
+[data-theme="light"] .filter-pill:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="light"] .filter-pill[aria-pressed="true"] {
+  color: #000000;
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+/* ── Alphabet quick-scroll ───────────────────────────────────── */
+.alpha-scroll {
+  position: fixed;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 200;
+  padding: 6px 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.alpha-scroll__letter {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  width: 20px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--c-text);
+  opacity: 0.2;
+  cursor: pointer;
+  transition: opacity 0.08s, background 0.08s, color 0.08s;
+}
+
+.alpha-scroll__letter.is-available {
+  opacity: 0.55;
+}
+
+.alpha-scroll__letter.is-active {
+  background: #e8441a;
+  color: #ffffff;
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* Scrollable pill row on small screens */
+@media (max-width: 768px) {
+  #filter-bar {
+    left: var(--space-4);
+    right: var(--space-4);
+    transform: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #filter-bar::-webkit-scrollbar {
+    display: none;
+  }
+}

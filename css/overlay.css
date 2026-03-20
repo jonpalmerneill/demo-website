@@ -1,0 +1,288 @@
+/* Intro overlay — full-width bottom bar */
+#overlay {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background: #0A0A0A;
+  padding: calc(var(--space-6) + 10px) var(--space-8) calc(var(--space-6) + 10px);
+
+  /* Prompt + input on one line, X button at far right */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-3) 0.35em;
+
+  /* Initial hidden state — GSAP will animate in */
+  opacity: 0;
+}
+
+/* Gradient ribbon that fades the top edge into the page */
+#overlay::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: linear-gradient(to bottom, transparent, #0A0A0A);
+  pointer-events: none;
+}
+
+.overlay__text {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: #f0ede8;
+  line-height: 1.4;
+  flex: 0 1 auto;
+}
+
+/* Input row */
+.overlay__input-row {
+  position: relative;
+  flex: 1 1 260px;
+}
+
+.overlay__input {
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: #f0ede8;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.overlay__input::placeholder {
+  color: rgba(240, 237, 232, 0.38);
+}
+
+/* Animated typewriter placeholder */
+.overlay__placeholder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: rgba(240, 237, 232, 0.38);
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.overlay__placeholder::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  background: rgba(240, 237, 232, 0.38);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: tw-cursor 0.7s step-start infinite;
+}
+
+@keyframes tw-cursor {
+  50% { opacity: 0; }
+}
+
+/* Autocomplete dropdown — opens upward since bar is at the bottom */
+.overlay__autocomplete {
+  position: absolute;
+  bottom: calc(100% + var(--space-1));
+  top: auto;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  z-index: 10;
+  display: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.overlay__autocomplete.is-open {
+  display: block;
+}
+
+.overlay__suggestion {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  color: #0a0a0a;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-smooth);
+}
+
+.overlay__suggestion:hover,
+.overlay__suggestion.is-active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.overlay__suggestion mark {
+  background: none;
+  color: #0a0a0a;
+  font-weight: 600;
+}
+
+/* ── Mic button ────────────────────────────────────────────── */
+#overlay-mic {
+  flex: 0 0 auto;
+  position: relative; /* anchor for pulse ring */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: rgba(240, 237, 232, 0.4);
+  cursor: pointer;
+  transition:
+    color       var(--dur-fast) var(--ease-smooth),
+    background  var(--dur-fast) var(--ease-smooth);
+}
+
+#overlay-mic:hover {
+  color: #f0ede8;
+  background: rgba(240, 237, 232, 0.08);
+}
+
+#overlay-mic svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Speaking: brighten slightly */
+#overlay-mic.is-speaking {
+  color: rgba(240, 237, 232, 0.7);
+}
+
+/* Listening: full brightness + pulsing ring */
+#overlay-mic.is-listening {
+  color: #f0ede8;
+  background: rgba(240, 237, 232, 0.1);
+}
+
+#overlay-mic.is-listening::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(240, 237, 232, 0.55);
+  animation: mic-pulse 1.15s ease-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%   { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(1.75); opacity: 0; }
+}
+
+/* Light mode */
+[data-theme="light"] #overlay-mic {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] #overlay-mic:hover {
+  color: #0a0a0a;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] #overlay-mic.is-speaking {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="light"] #overlay-mic.is-listening {
+  color: #0a0a0a;
+  background: rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"] #overlay-mic.is-listening::before {
+  border-color: rgba(0, 0, 0, 0.45);
+}
+
+/* X close button — pushed to far right */
+.overlay__dismiss {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: rgba(240, 237, 232, 0.4);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-smooth),
+    background var(--dur-fast) var(--ease-smooth);
+}
+
+.overlay__dismiss:hover {
+  color: #f0ede8;
+  background: rgba(240, 237, 232, 0.08);
+}
+
+/* ── Light mode overrides ─────────────────────────────────── */
+[data-theme="light"] #overlay {
+  background: #F2EDE9;
+}
+
+[data-theme="light"] #overlay::before {
+  background: linear-gradient(to bottom, transparent, #F2EDE9);
+}
+
+[data-theme="light"] .overlay__text {
+  color: #0a0a0a;
+}
+
+[data-theme="light"] .overlay__input {
+  color: #0a0a0a;
+}
+
+[data-theme="light"] .overlay__input::placeholder {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+[data-theme="light"] .overlay__placeholder {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+[data-theme="light"] .overlay__placeholder::after {
+  background: rgba(0, 0, 0, 0.38);
+}
+
+[data-theme="light"] .overlay__dismiss {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .overlay__dismiss:hover {
+  color: #0a0a0a;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.overlay__dismiss svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Scrim — hidden; overlay is now a self-contained card */
+#overlay-scrim {
+  display: none;
+}

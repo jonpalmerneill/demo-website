@@ -1,0 +1,407 @@
+/* Intro wordmark pill — shown on load, fades out after 5s */
+#nav-logo-intro {
+  position: fixed;
+  top: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 401;
+  background: #e8441a;
+  border-radius: 999px;
+  padding: 13px 22px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+#nav-logo-intro img {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
+/* C Logo button — top center */
+#nav-logo {
+  position: fixed;
+  top: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 400;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background: none;
+  cursor: pointer;
+  /* Hidden until intro fades out */
+  opacity: 0;
+  transition:
+    background var(--dur-base) var(--ease-smooth),
+    opacity var(--dur-base) var(--ease-smooth);
+}
+
+#nav-logo:hover {
+  opacity: 0.85;
+}
+
+#nav-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity var(--dur-base) var(--ease-smooth);
+}
+
+/* X icon — hidden by default, absolutely fills the button */
+.nav-logo__close {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 13px;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-smooth);
+}
+
+/* Open state — red circle + white X */
+#nav-logo[aria-expanded="true"] {
+  background: #d93025;
+}
+
+#nav-logo[aria-expanded="true"] img {
+  opacity: 0;
+}
+
+#nav-logo[aria-expanded="true"] .nav-logo__close {
+  opacity: 1;
+}
+
+/* Full-screen nav menu */
+#nav-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 350;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-16) var(--space-12);
+  background: var(--c-bg);
+  clip-path: inset(0 0 100% 0);
+  pointer-events: none;
+}
+
+#nav-menu.is-open {
+  pointer-events: auto;
+}
+
+.nav__items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-16);
+}
+
+.nav__item {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.nav__item:hover {
+  color: var(--c-text-muted);
+}
+
+.nav__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  opacity: 0;
+}
+
+.nav__footer-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.nav__footer-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.nav__footer-link {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--c-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.nav__footer-link:hover {
+  color: var(--c-text);
+}
+
+/* Theme toggle pill */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--c-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.theme-toggle:hover {
+  color: var(--c-text);
+}
+
+.theme-toggle__track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  flex-shrink: 0;
+}
+
+.theme-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: transform var(--dur-base) var(--ease-smooth);
+}
+
+[data-theme="light"] .theme-toggle__thumb {
+  transform: translateX(16px);
+}
+
+/* ── Less Motion checkbox ────────────────────────────────────────── */
+.less-motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  color: var(--c-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+.less-motion-toggle:hover {
+  color: var(--c-text);
+}
+
+.less-motion-toggle__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.less-motion-toggle__box {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  flex-shrink: 0;
+  transition:
+    background var(--dur-base) var(--ease-smooth),
+    border-color var(--dur-base) var(--ease-smooth);
+}
+
+/* Checkmark via pseudo-element */
+.less-motion-toggle__box::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 5px;
+  height: 9px;
+  border-right: 1.5px solid var(--c-bg);
+  border-bottom: 1.5px solid var(--c-bg);
+  transform: rotate(45deg);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-smooth);
+}
+
+.less-motion-toggle__input:checked ~ .less-motion-toggle__box {
+  background: currentColor;
+}
+
+.less-motion-toggle__input:checked ~ .less-motion-toggle__box::after {
+  opacity: 1;
+}
+
+.less-motion-toggle__label {
+  user-select: none;
+}
+
+/* ── Nav prompt ──────────────────────────────────────────────────── */
+.nav__prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: min(480px, 100%);
+  margin-bottom: 30px;
+  opacity: 0; /* GSAP animates this in */
+}
+
+.nav__prompt-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+  font-weight: 400;
+  color: var(--c-text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.nav__prompt-input-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.nav__prompt-input {
+  background: none;
+  border: none;
+  color: var(--c-text);
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+  font-weight: 400;
+  text-align: center;
+  padding: var(--space-2) 0;
+  outline: none;
+}
+
+.nav__prompt-input::placeholder {
+  color: var(--c-text-muted);
+  opacity: 0.6;
+}
+
+.nav__prompt-input:focus {
+  outline: none;
+}
+
+.nav__prompt-mic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-smooth),
+    background var(--dur-fast) var(--ease-smooth);
+}
+
+.nav__prompt-mic:hover {
+  color: var(--c-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .nav__prompt-mic:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.nav__prompt-mic.is-speaking {
+  color: var(--c-text);
+  opacity: 0.7;
+}
+
+.nav__prompt-mic.is-listening {
+  color: var(--c-text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .nav__prompt-mic.is-listening {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.nav__prompt-mic svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.nav__prompt-autocomplete {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 0;
+  right: 38px; /* clear the mic button */
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  z-index: 10;
+  display: none;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.nav__prompt-autocomplete.is-open {
+  display: block;
+}
+
+.nav__prompt-suggestion {
+  width: 100%;
+  text-align: center;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--c-text);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-smooth);
+}
+
+.nav__prompt-suggestion:hover,
+.nav__prompt-suggestion.is-active {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .nav__prompt-suggestion:hover,
+[data-theme="light"] .nav__prompt-suggestion.is-active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.nav__prompt-suggestion mark {
+  background: none;
+  color: var(--c-text);
+  font-weight: 600;
+}
+

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Project — Carnevale Design & Development Agency" />
+  <title>Project — Carnevale</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Set page state before first paint: theme + transition starting class -->
+  <script>
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.dataset.theme = 'light';
+    }
+    if (localStorage.getItem('less-motion') === 'on') {
+      document.documentElement.classList.add('is-less-motion');
+    }
+    document.documentElement.classList.add('is-entering');
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/project.css" />
+</head>
+<body>
+
+  <!-- Back to gallery -->
+  <a href="index.html" class="project-back" aria-label="Back to gallery">
+    <svg viewBox="0 0 22 10" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <line x1="20" y1="5" x2="2" y2="5" stroke-linecap="round" />
+      <polyline points="7,1 2,5 7,9" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span>Back</span>
+  </a>
+
+  <!-- Nav — C logo + full-screen menu -->
+  <button id="nav-logo" aria-label="Open navigation" aria-expanded="false">
+    <img src="favicon.png" alt="Carnevale" aria-hidden="true" />
+    <svg class="nav-logo__close" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <line x1="5" y1="5" x2="15" y2="15" stroke-linecap="round"/>
+      <line x1="15" y1="5" x2="5" y2="15" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <nav id="nav-menu" aria-label="Site navigation">
+    <ul class="nav__items">
+      <li><a class="nav__item" href="#">Work</a></li>
+      <li><a class="nav__item" href="#">Studio</a></li>
+      <li><a class="nav__item" href="#">Services</a></li>
+      <li><a class="nav__item" href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav__footer">
+      <div class="nav__footer-links">
+        <a class="nav__footer-link" href="#">Instagram</a>
+        <a class="nav__footer-link" href="#">LinkedIn</a>
+        <a class="nav__footer-link" href="#">&copy; 2024 Carnevale</a>
+      </div>
+      <div class="nav__footer-controls">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle colour scheme">
+          <span class="theme-toggle__track">
+            <span class="theme-toggle__thumb"></span>
+          </span>
+          <span class="theme-toggle__label">Dark Mode</span>
+        </button>
+        <label class="less-motion-toggle" for="less-motion-checkbox">
+          <input type="checkbox" id="less-motion-checkbox" class="less-motion-toggle__input" />
+          <span class="less-motion-toggle__box"></span>
+          <span class="less-motion-toggle__label">Less Motion</span>
+        </label>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Project content
+  ════════════════════════════════════════════════════════════════ -->
+  <main class="project" data-project-id="proj-01">
+
+    <!-- Title -->
+    <header class="project__header" data-section="Intro">
+      <p class="project__meta">Technology &nbsp;&middot;&nbsp; ElevenLabs &nbsp;&middot;&nbsp; 2024</p>
+      <h1 class="project__title">ElevenLabs</h1>
+    </header>
+
+    <!-- Hero image -->
+    <figure class="project__hero">
+      <img
+        src="https://media-cdn-prod.area17.com/d1d6bd9c-009f-4a7f-a1c0-513b4d6ab241/elevenlabs_09a_app.png"
+        alt="ElevenLabs — Reader app"
+      />
+    </figure>
+
+    <!-- Text body -->
+    <div class="project__body" data-section="Story">
+
+      <p class="project__intro">
+        A next-generation operating system interface that reimagines how people
+        interact with their devices&nbsp;— built for clarity, speed, and expression.
+      </p>
+
+      <p>
+        The brief called for a complete redesign of the interface layer — from
+        the home screen to system settings. Working closely with TechCorp's
+        product team, we mapped every existing interaction pattern and rebuilt
+        the visual language from scratch, stripping away years of accumulated
+        complexity to reveal what actually mattered.
+      </p>
+
+      <p>
+        The resulting design system pairs a constrained typographic palette with
+        fluid, physics-based motion to create an experience that feels alive.
+        Every animation responds to velocity and intent rather than triggering
+        on a fixed timer — a subtle distinction that users feel before they can
+        articulate it.
+      </p>
+
+      <p>
+        Accessibility was embedded from day one. The colour system meets WCAG AA
+        across all surfaces, and a high-contrast mode is built into the core
+        token architecture — not bolted on afterward. The outcome is a platform
+        that serves a global audience without compromise.
+      </p>
+
+      <blockquote class="project__quote">
+        <p>
+          "Carnevale didn't just deliver a great interface — they changed how
+          our whole team thinks about what design quality actually means."
+        </p>
+        <cite>— Sarah Chen, VP of Design at TechCorp</cite>
+      </blockquote>
+
+    </div>
+
+    <!-- Visual series -->
+    <section class="project__visuals" aria-label="Project visuals" data-section="Visuals">
+
+      <figure class="project__visual project__visual--wide">
+        <img
+          src="https://media-cdn-prod.area17.com/e3641b67-a5e8-4cf1-9db4-182e2859d681/05a_elevenlabs-products.jpg"
+          alt="ElevenLabs products overview"
+          loading="lazy"
+        />
+      </figure>
+
+      <figure class="project__visual project__visual--half">
+        <img
+          src="https://media-cdn-prod.area17.com/d1d6bd9c-009f-4a7f-a1c0-513b4d6ab241/elevenlabs_09a_app.png"
+          alt="ElevenLabs — Reader app"
+          loading="lazy"
+        />
+      </figure>
+
+      <figure class="project__visual project__visual--half">
+        <img
+          src="https://media-cdn-prod.area17.com/e3641b67-a5e8-4cf1-9db4-182e2859d681/05b_elevenlabs-products.jpg"
+          alt="ElevenLabs — Voice & sound surfaces"
+          loading="lazy"
+        />
+      </figure>
+
+      <figure class="project__visual project__visual--wide">
+        <video
+          class="project__visual-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+        >
+          <source src="https://media-cdn-prod.area17.com/8a7744ff-10f2-464f-95c4-b58173f564fa/01_elevenlabs-cover-169.mp4" type="video/mp4" />
+        </video>
+      </figure>
+
+      <figure class="project__visual project__visual--third">
+        <video
+          class="project__visual-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+        >
+          <source src="https://media-cdn-prod.area17.com/ae720e49-3db8-46e6-a196-9ae79b7f49f1/03d_elevenlabs-motion.mp4" type="video/mp4" />
+        </video>
+      </figure>
+
+      <figure class="project__visual project__visual--third">
+        <video
+          class="project__visual-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+        >
+          <source src="https://media-cdn-prod.area17.com/ae720e49-3db8-46e6-a196-9ae79b7f49f1/03c_elevenlabs-UI.mp4" type="video/mp4" />
+        </video>
+      </figure>
+
+      <figure class="project__visual project__visual--third">
+        <video
+          class="project__visual-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+        >
+          <source src="https://media-cdn-prod.area17.com/b72f9905-6a5f-43f0-b183-706ed2ee1226/03a_elevenlabs-soundflow.mp4" type="video/mp4" />
+        </video>
+      </figure>
+
+    </section>
+
+    <!-- Related projects -->
+    <section class="project__related" data-section="Related" aria-label="Related projects">
+      <h2 class="project__related-heading">Related</h2>
+      <div class="related__diagram" id="related-diagram"></div>
+    </section>
+
+  </main>
+
+  <script type="module" src="js/project.js"></script>
+
+</body>
+</html>
