@@ -167,7 +167,7 @@ export function initNav() {
     const label = themeToggle.querySelector('.theme-toggle__label');
 
     // Restore saved preference
-    if (localStorage.getItem('theme') === 'light') {
+    if (localStorage.getItem('theme') !== 'dark') {
       html.dataset.theme = 'light';
       label.textContent  = 'Light Mode';
     }

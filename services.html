@@ -9,7 +9,7 @@
 
   <!-- Set page state before first paint -->
   <script>
-    if (localStorage.getItem('theme') === 'light') {
+    if (localStorage.getItem('theme') !== 'dark') {
       document.documentElement.dataset.theme = 'light';
     }
     if (localStorage.getItem('less-motion') === 'on') {
