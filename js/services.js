@@ -85,6 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let step2PillsHTML     = '';
   let step2StatementHTML = '';
 
+  // Selected labels saved per step for the results page
+  let savedServices   = [];
+  let savedIndustries = [];
+
   // ── Back link — always leaves the page ───────────────────────
   const backLink = document.querySelector('.project-back');
   if (backLink) {
@@ -287,6 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function advanceToStep2() {
     nextBtn.style.pointerEvents = 'none';
 
+    savedServices = currentPills
+      .filter(p => p.classList.contains('is-selected'))
+      .map(p => p.textContent.trim());
+
     step1PillsHTML     = pillsEl.innerHTML;
     step1StatementHTML = statementEl.innerHTML;
 
@@ -348,6 +356,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function advanceToStep3() {
     nextBtn.style.pointerEvents = 'none';
 
+    savedIndustries = currentPills
+      .filter(p => p.classList.contains('is-selected'))
+      .map(p => p.textContent.trim());
+
     step2PillsHTML     = pillsEl.innerHTML;
     step2StatementHTML = statementEl.innerHTML;
 
@@ -377,7 +389,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gsap.set(nextBtn, { autoAlpha: 0, x: -8 });
         nextBtn.style.pointerEvents = 'none';
-        registerNextHandler(() => leavePage('contact.html'));
+        registerNextHandler(() => {
+          const goals = currentPills
+            .filter(p => p.classList.contains('is-selected'))
+            .map(p => p.textContent.trim());
+          localStorage.setItem('carnevale_quiz', JSON.stringify({
+            services: savedServices,
+            industries: savedIndustries,
+            goals,
+          }));
+          leavePage('results.html');
+        });
 
         voiceCallback = (transcript) => {
           const t = transcript.toLowerCase();
