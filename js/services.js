@@ -23,6 +23,20 @@ const INDUSTRIES = [
   'Energy',
 ];
 
+// ── Step 3 goal pills ─────────────────────────────────────────────
+const GOALS = [
+  'Grow revenue',
+  'Build brand awareness',
+  'Launch a new product',
+  'Improve user experience',
+  'Reach new markets',
+  'Educate audiences',
+  'Automate operations',
+  'Build customer loyalty',
+  'Raise investment',
+  'Reduce costs',
+];
+
 // Map industry pill labels → project industry IDs in data.js
 const INDUSTRY_MAP = {
   'Healthcare':               'healthcare',
@@ -61,17 +75,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const preview = initPreview(PREVIEW_POOL);
 
   // ── Step state ────────────────────────────────────────────────
-  let currentStep = 'services';
+  // 'services' | 'industries' | 'goals'
+  let currentStep  = 'services';
   let currentPills = [];
 
-  // Saved DOM snapshots so step 1 can be restored without re-typing
+  // DOM snapshots so previous steps can be restored without re-typing
   let step1PillsHTML     = '';
   let step1StatementHTML = '';
+  let step2PillsHTML     = '';
+  let step2StatementHTML = '';
 
-  // ── Back link — always leaves the page
+  // ── Back link — always leaves the page ───────────────────────
   const backLink = document.querySelector('.project-back');
   if (backLink) {
     backLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      leavePage('index.html');
+    });
+  }
+
+  const skipLink = document.querySelector('.services__skip');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
       e.preventDefault();
       leavePage('index.html');
     });
@@ -84,23 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentStep === 'services' && e.deltaY > 0) {
       const anySelected = currentPills.some(p => p.classList.contains('is-selected'));
-      if (anySelected) {
-        transitioning = true;
-        advanceToStep2();
-      }
+      if (anySelected) { transitioning = true; advanceToStep2(); }
+    } else if (currentStep === 'industries' && e.deltaY > 0) {
+      const anySelected = currentPills.some(p => p.classList.contains('is-selected'));
+      if (anySelected) { transitioning = true; advanceToStep3(); }
     } else if (currentStep === 'industries' && e.deltaY < 0) {
-      transitioning = true;
-      revertToStep1();
+      transitioning = true; revertToStep1();
+    } else if (currentStep === 'goals' && e.deltaY < 0) {
+      transitioning = true; revertToStep2();
     }
   }, { passive: true });
-
-  const skipLink = document.querySelector('.services__skip');
-  if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      leavePage('index.html');
-    });
-  }
 
   // ── Generic blur-fade typewriter ──────────────────────────────
   function typeText(el, msg, onDone) {
@@ -180,15 +198,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (currentStep === 'goals') return; // preview stays as-is on step 3
+
     // Step 2: industries
     if (!selected.length) {
-      preview.update(null); // show all, no filter active
+      preview.update(null);
       return;
     }
 
     const mappedIds = selected.map(s => INDUSTRY_MAP[s]).filter(Boolean);
     if (!mappedIds.length) {
-      preview.update([]); // no project data for these industries
+      preview.update([]);
       return;
     }
 
@@ -213,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
   currentPills = Array.from(pillsEl.querySelectorAll('.services__pill'));
   bindPills(currentPills);
 
-  // ── Voice — mutable callback so step 2 can update it ─────────
+  // ── Voice — mutable callback so each step can update it ──────
   const micBtn = document.getElementById('services-mic');
   let voiceCallback = (transcript) => {
     const t = transcript.toLowerCase();
@@ -234,21 +254,39 @@ document.addEventListener('DOMContentLoaded', () => {
     (transcript) => voiceCallback(transcript)
   );
 
-  // ── Register the Next button handler (called on load + after revert)
-  function registerNextHandler() {
+  // ── Previous button helper ────────────────────────────────────
+  // action = null removes the button; otherwise injects it before Next
+  function setPrevBtn(action) {
+    const existing = actionsEl.querySelector('.services__prev');
+    if (existing) existing.remove();
+    if (!action) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'services__prev';
+    btn.setAttribute('aria-label', 'Previous step');
+    btn.innerHTML = `<svg viewBox="0 0 28 14" fill="none" aria-hidden="true">
+      <line x1="26" y1="7" x2="4" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <polyline points="10,2 4,7 10,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg><span>Previous</span>`;
+    btn.addEventListener('click', action);
+    actionsEl.insertBefore(btn, nextBtn);
+  }
+
+  // ── Next button handler — registered per-step ─────────────────
+  function registerNextHandler(action) {
     nextBtn.addEventListener('click', function onNext() {
       nextBtn.removeEventListener('click', onNext);
-      advanceToStep2();
+      action();
     });
   }
 
-  registerNextHandler();
+  registerNextHandler(advanceToStep2);
 
   // ── Step 1 → Step 2 ───────────────────────────────────────────
   function advanceToStep2() {
     nextBtn.style.pointerEvents = 'none';
 
-    // Snapshot step 1 DOM so it can be restored on back navigation
     step1PillsHTML     = pillsEl.innerHTML;
     step1StatementHTML = statementEl.innerHTML;
 
@@ -259,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ease: 'power3.in',
       stagger: 0.06,
       onComplete: () => {
-        // Build industry pills
         pillsEl.innerHTML = '';
         const newPills = INDUSTRIES.map(label => {
           const btn = document.createElement('button');
@@ -275,24 +312,12 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStep  = 'industries';
         bindPills(newPills);
 
-        // Inject Previous button before Next
-        const prevBtn = document.createElement('button');
-        prevBtn.type = 'button';
-        prevBtn.className = 'services__prev';
-        prevBtn.setAttribute('aria-label', 'Previous step');
-        prevBtn.innerHTML = `<svg viewBox="0 0 28 14" fill="none" aria-hidden="true">
-          <line x1="26" y1="7" x2="4" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <polyline points="10,2 4,7 10,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg><span>Previous</span>`;
-        actionsEl.insertBefore(prevBtn, nextBtn);
-        prevBtn.addEventListener('click', revertToStep1);
+        setPrevBtn(revertToStep1);
 
-        // Reset next button (no industries selected yet)
         gsap.set(nextBtn, { autoAlpha: 0, x: -8 });
         nextBtn.style.pointerEvents = 'none';
-        registerNextHandler();
+        registerNextHandler(advanceToStep3);
 
-        // Update voice callback for step 2 pills
         voiceCallback = (transcript) => {
           const t = transcript.toLowerCase();
           newPills.forEach(pill => {
@@ -307,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         transitioning = false;
-        preview.update(null); // keep preview showing all on step 2 entry
+        preview.update(null);
 
         gsap.set(statementEl, { opacity: 1, y: 0 });
         gsap.set(pillsEl, { opacity: 0, y: 16 });
@@ -319,15 +344,70 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── Step 2 → Step 1 (previous / scroll-up) ───────────────────
-  function revertToStep1() {
-    // Remove the Previous button
-    const prevBtn = actionsEl.querySelector('.services__prev');
-    if (prevBtn) prevBtn.remove();
-
+  // ── Step 2 → Step 3 ───────────────────────────────────────────
+  function advanceToStep3() {
     nextBtn.style.pointerEvents = 'none';
 
-    // Slide current step 2 content downward and out
+    step2PillsHTML     = pillsEl.innerHTML;
+    step2StatementHTML = statementEl.innerHTML;
+
+    gsap.to([statementEl, pillsEl], {
+      opacity: 0,
+      y: -40,
+      duration: 0.45,
+      ease: 'power3.in',
+      stagger: 0.06,
+      onComplete: () => {
+        pillsEl.innerHTML = '';
+        const newPills = GOALS.map(label => {
+          const btn = document.createElement('button');
+          btn.className = 'services__pill';
+          btn.type = 'button';
+          btn.dataset.service = label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          btn.textContent = label;
+          pillsEl.appendChild(btn);
+          return btn;
+        });
+
+        currentPills = newPills;
+        currentStep  = 'goals';
+        bindPills(newPills);
+
+        setPrevBtn(revertToStep2);
+
+        gsap.set(nextBtn, { autoAlpha: 0, x: -8 });
+        nextBtn.style.pointerEvents = 'none';
+        registerNextHandler(() => leavePage('contact.html'));
+
+        voiceCallback = (transcript) => {
+          const t = transcript.toLowerCase();
+          newPills.forEach(pill => {
+            const label = pill.textContent.trim().toLowerCase();
+            if (t.includes(label)) {
+              pill.classList.add('is-selected');
+              pill.setAttribute('aria-pressed', 'true');
+            }
+          });
+          updateNextBtn();
+        };
+
+        transitioning = false;
+
+        gsap.set(statementEl, { opacity: 1, y: 0 });
+        gsap.set(pillsEl, { opacity: 0, y: 16 });
+
+        typeText(statementEl, 'What are your primary goals?', () => {
+          gsap.to(pillsEl, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' });
+        });
+      },
+    });
+  }
+
+  // ── Step 2 → Step 1 ───────────────────────────────────────────
+  function revertToStep1() {
+    setPrevBtn(null);
+    nextBtn.style.pointerEvents = 'none';
+
     gsap.to([statementEl, pillsEl], {
       opacity: 0,
       y: 40,
@@ -335,13 +415,11 @@ document.addEventListener('DOMContentLoaded', () => {
       ease: 'power3.in',
       stagger: 0.05,
       onComplete: () => {
-        // Restore step 1 pills (including previously selected state)
         pillsEl.innerHTML = step1PillsHTML;
         currentPills = Array.from(pillsEl.querySelectorAll('.services__pill'));
         currentStep  = 'services';
         bindPills(currentPills);
 
-        // Reset voice callback back to step 1 pills
         voiceCallback = (transcript) => {
           const t = transcript.toLowerCase();
           currentPills.forEach(pill => {
@@ -355,10 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
           updatePreview();
         };
 
-        // Restore the typed statement HTML directly (no re-typing on back nav)
         statementEl.innerHTML = step1StatementHTML;
 
-        // Slide step 1 content back in from above
         gsap.fromTo(
           statementEl,
           { opacity: 0, y: -20 },
@@ -370,7 +446,61 @@ document.addEventListener('DOMContentLoaded', () => {
           { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', delay: 0.08 }
         );
 
-        // Sync next button and preview with restored pill state
+        updateNextBtn();
+        updatePreview();
+        transitioning = false;
+      },
+    });
+  }
+
+  // ── Step 3 → Step 2 ───────────────────────────────────────────
+  function revertToStep2() {
+    nextBtn.style.pointerEvents = 'none';
+
+    gsap.to([statementEl, pillsEl], {
+      opacity: 0,
+      y: 40,
+      duration: 0.35,
+      ease: 'power3.in',
+      stagger: 0.05,
+      onComplete: () => {
+        pillsEl.innerHTML = step2PillsHTML;
+        currentPills = Array.from(pillsEl.querySelectorAll('.services__pill'));
+        currentStep  = 'industries';
+        bindPills(currentPills);
+
+        setPrevBtn(revertToStep1);
+
+        gsap.set(nextBtn, { autoAlpha: 0, x: -8 });
+        nextBtn.style.pointerEvents = 'none';
+        registerNextHandler(advanceToStep3);
+
+        voiceCallback = (transcript) => {
+          const t = transcript.toLowerCase();
+          currentPills.forEach(pill => {
+            const label = pill.textContent.trim().toLowerCase();
+            if (t.includes(label)) {
+              pill.classList.add('is-selected');
+              pill.setAttribute('aria-pressed', 'true');
+            }
+          });
+          updateNextBtn();
+          updatePreview();
+        };
+
+        statementEl.innerHTML = step2StatementHTML;
+
+        gsap.fromTo(
+          statementEl,
+          { opacity: 0, y: -20 },
+          { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
+        );
+        gsap.fromTo(
+          pillsEl,
+          { opacity: 0, y: -16 },
+          { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', delay: 0.08 }
+        );
+
         updateNextBtn();
         updatePreview();
         transitioning = false;
