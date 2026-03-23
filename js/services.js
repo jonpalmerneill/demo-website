@@ -77,11 +77,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── Scroll up on step 2 → revert to step 1 ───────────────────
-  let reverting = false;
+  // ── Scroll to navigate between steps ─────────────────────────
+  let transitioning = false;
   window.addEventListener('wheel', (e) => {
-    if (currentStep === 'industries' && e.deltaY < 0 && !reverting) {
-      reverting = true;
+    if (transitioning) return;
+
+    if (currentStep === 'services' && e.deltaY > 0) {
+      const anySelected = currentPills.some(p => p.classList.contains('is-selected'));
+      if (anySelected) {
+        transitioning = true;
+        advanceToStep2();
+      }
+    } else if (currentStep === 'industries' && e.deltaY < 0) {
+      transitioning = true;
       revertToStep1();
     }
   }, { passive: true });
@@ -298,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
           updatePreview();
         };
 
+        transitioning = false;
         preview.update(null); // keep preview showing all on step 2 entry
 
         gsap.set(statementEl, { opacity: 1, y: 0 });
@@ -364,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sync next button and preview with restored pill state
         updateNextBtn();
         updatePreview();
-        reverting = false;
+        transitioning = false;
       },
     });
   }
