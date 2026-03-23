@@ -117,6 +117,45 @@ html, body {
   gap: var(--space-4);
 }
 
+/* Previous button — appears on step 2, same pill shape as Next */
+.services__prev {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 20px;
+  flex-shrink: 0;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--c-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color           var(--dur-fast) var(--ease-smooth),
+    background      var(--dur-fast) var(--ease-smooth),
+    border-color    var(--dur-fast) var(--ease-smooth);
+}
+
+.services__prev svg {
+  width: 20px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.services__prev:hover {
+  color: var(--c-text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] .services__prev:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: var(--c-text-muted);
+}
+
 /* Arrow/next button — invisible until ≥1 pill selected; auto margin
    pushes mic + skip to the right edge at all times               */
 .services__next {

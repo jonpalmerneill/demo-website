@@ -68,18 +68,23 @@ document.addEventListener('DOMContentLoaded', () => {
   let step1PillsHTML     = '';
   let step1StatementHTML = '';
 
-  // ── Back link — leaves page on step 1, reverts to step 1 on step 2
+  // ── Back link — always leaves the page
   const backLink = document.querySelector('.project-back');
   if (backLink) {
     backLink.addEventListener('click', (e) => {
       e.preventDefault();
-      if (currentStep === 'industries') {
-        revertToStep1();
-      } else {
-        leavePage('index.html');
-      }
+      leavePage('index.html');
     });
   }
+
+  // ── Scroll up on step 2 → revert to step 1 ───────────────────
+  let reverting = false;
+  window.addEventListener('wheel', (e) => {
+    if (currentStep === 'industries' && e.deltaY < 0 && !reverting) {
+      reverting = true;
+      revertToStep1();
+    }
+  }, { passive: true });
 
   const skipLink = document.querySelector('.services__skip');
   if (skipLink) {
@@ -262,6 +267,18 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStep  = 'industries';
         bindPills(newPills);
 
+        // Inject Previous button before Next
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'services__prev';
+        prevBtn.setAttribute('aria-label', 'Previous step');
+        prevBtn.innerHTML = `<svg viewBox="0 0 28 14" fill="none" aria-hidden="true">
+          <line x1="26" y1="7" x2="4" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="10,2 4,7 10,12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg><span>Previous</span>`;
+        actionsEl.insertBefore(prevBtn, nextBtn);
+        prevBtn.addEventListener('click', revertToStep1);
+
         // Reset next button (no industries selected yet)
         gsap.set(nextBtn, { autoAlpha: 0, x: -8 });
         nextBtn.style.pointerEvents = 'none';
@@ -293,8 +310,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── Step 2 → Step 1 (back) ────────────────────────────────────
+  // ── Step 2 → Step 1 (previous / scroll-up) ───────────────────
   function revertToStep1() {
+    // Remove the Previous button
+    const prevBtn = actionsEl.querySelector('.services__prev');
+    if (prevBtn) prevBtn.remove();
+
     nextBtn.style.pointerEvents = 'none';
 
     // Slide current step 2 content downward and out
@@ -343,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sync next button and preview with restored pill state
         updateNextBtn();
         updatePreview();
+        reverting = false;
       },
     });
   }
