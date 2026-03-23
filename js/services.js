@@ -46,22 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initCursor();
   initNav();
 
-  const backLink = document.querySelector('.project-back');
-  if (backLink) {
-    backLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      leavePage('index.html');
-    });
-  }
-
-  const skipLink = document.querySelector('.services__skip');
-  if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      leavePage('index.html');
-    });
-  }
-
   const statementEl = document.querySelector('.services__statement');
   const pillsEl     = document.querySelector('.services__pills');
   const actionsEl   = document.querySelector('.services__actions');
@@ -79,6 +63,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Step state ────────────────────────────────────────────────
   let currentStep = 'services';
   let currentPills = [];
+
+  // Saved DOM snapshots so step 1 can be restored without re-typing
+  let step1PillsHTML     = '';
+  let step1StatementHTML = '';
+
+  // ── Back link — leaves page on step 1, reverts to step 1 on step 2
+  const backLink = document.querySelector('.project-back');
+  if (backLink) {
+    backLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentStep === 'industries') {
+        revertToStep1();
+      } else {
+        leavePage('index.html');
+      }
+    });
+  }
+
+  const skipLink = document.querySelector('.services__skip');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      leavePage('index.html');
+    });
+  }
 
   // ── Generic blur-fade typewriter ──────────────────────────────
   function typeText(el, msg, onDone) {
@@ -212,10 +221,23 @@ document.addEventListener('DOMContentLoaded', () => {
     (transcript) => voiceCallback(transcript)
   );
 
-  // ── Advance to step 2 (industries) ───────────────────────────
-  nextBtn.addEventListener('click', function onNext() {
-    nextBtn.removeEventListener('click', onNext);
+  // ── Register the Next button handler (called on load + after revert)
+  function registerNextHandler() {
+    nextBtn.addEventListener('click', function onNext() {
+      nextBtn.removeEventListener('click', onNext);
+      advanceToStep2();
+    });
+  }
+
+  registerNextHandler();
+
+  // ── Step 1 → Step 2 ───────────────────────────────────────────
+  function advanceToStep2() {
     nextBtn.style.pointerEvents = 'none';
+
+    // Snapshot step 1 DOM so it can be restored on back navigation
+    step1PillsHTML     = pillsEl.innerHTML;
+    step1StatementHTML = statementEl.innerHTML;
 
     gsap.to([statementEl, pillsEl], {
       opacity: 0,
@@ -224,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ease: 'power3.in',
       stagger: 0.06,
       onComplete: () => {
+        // Build industry pills
         pillsEl.innerHTML = '';
         const newPills = INDUSTRIES.map(label => {
           const btn = document.createElement('button');
@@ -236,12 +259,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         currentPills = newPills;
-        currentStep = 'industries';
+        currentStep  = 'industries';
         bindPills(newPills);
 
+        // Reset next button (no industries selected yet)
         gsap.set(nextBtn, { autoAlpha: 0, x: -8 });
         nextBtn.style.pointerEvents = 'none';
+        registerNextHandler();
 
+        // Update voice callback for step 2 pills
         voiceCallback = (transcript) => {
           const t = transcript.toLowerCase();
           newPills.forEach(pill => {
@@ -255,8 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
           updatePreview();
         };
 
-        // Keep preview showing all on entry to step 2
-        preview.update(null);
+        preview.update(null); // keep preview showing all on step 2 entry
 
         gsap.set(statementEl, { opacity: 1, y: 0 });
         gsap.set(pillsEl, { opacity: 0, y: 16 });
@@ -266,7 +291,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       },
     });
-  });
+  }
+
+  // ── Step 2 → Step 1 (back) ────────────────────────────────────
+  function revertToStep1() {
+    nextBtn.style.pointerEvents = 'none';
+
+    // Slide current step 2 content downward and out
+    gsap.to([statementEl, pillsEl], {
+      opacity: 0,
+      y: 40,
+      duration: 0.35,
+      ease: 'power3.in',
+      stagger: 0.05,
+      onComplete: () => {
+        // Restore step 1 pills (including previously selected state)
+        pillsEl.innerHTML = step1PillsHTML;
+        currentPills = Array.from(pillsEl.querySelectorAll('.services__pill'));
+        currentStep  = 'services';
+        bindPills(currentPills);
+
+        // Reset voice callback back to step 1 pills
+        voiceCallback = (transcript) => {
+          const t = transcript.toLowerCase();
+          currentPills.forEach(pill => {
+            const label = pill.textContent.trim().toLowerCase();
+            if (t.includes(label)) {
+              pill.classList.add('is-selected');
+              pill.setAttribute('aria-pressed', 'true');
+            }
+          });
+          updateNextBtn();
+          updatePreview();
+        };
+
+        // Restore the typed statement HTML directly (no re-typing on back nav)
+        statementEl.innerHTML = step1StatementHTML;
+
+        // Slide step 1 content back in from above
+        gsap.fromTo(
+          statementEl,
+          { opacity: 0, y: -20 },
+          { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
+        );
+        gsap.fromTo(
+          pillsEl,
+          { opacity: 0, y: -16 },
+          { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', delay: 0.08 }
+        );
+
+        // Sync next button and preview with restored pill state
+        updateNextBtn();
+        updatePreview();
+      },
+    });
+  }
 });
 
 // ── Preview grid module ───────────────────────────────────────────
@@ -277,8 +356,8 @@ function initPreview(pool) {
   const el = document.getElementById('services-preview');
   if (!el) return { activate() {}, deactivate() {}, update() {} };
 
-  let isActive  = false;
-  let cardEls   = [];
+  let isActive   = false;
+  let cardEls    = [];
   let visibleIds = new Set();
 
   function activate() {
