@@ -181,19 +181,18 @@ function applyKeywordHTML(text, keywords) {
   return html;
 }
 
-// Per-card scatter: [rotation (deg), x offset (px), y offset (px)]
-// Values are deterministic so the layout is consistent on reload.
-const SCATTER = [
-  [-2.5,  -8,   0],
-  [ 1.8,   6,  14],
-  [-3.2,   4,  -8],
-  [ 2.4, -10,   6],
-  [-1.6,   8, -10],
-  [ 3.0,  -4,   8],
+// Per-item note positions — alternates left/right, varies vertical placement
+const NOTE_POSITIONS = [
+  { css: 'left: 12px; top: 20%;',     width: '140px' },
+  { css: 'right: 12px; top: 8%;',     width: '140px' },
+  { css: 'left: 8px; top: 50%;',      width: '145px' },
+  { css: 'right: 8px; top: 35%;',     width: '140px' },
+  { css: 'left: 12px; bottom: 18%;',  width: '140px' },
+  { css: 'right: 12px; bottom: 22%;', width: '140px' },
 ];
 
-// Small rotation applied to each handwritten note (independent of card)
-const NOTE_ROTS = [-1.5, 2.2, -2.0, 1.8, -2.5, 1.2];
+// Small rotation applied to each handwritten note
+const NOTE_ROTS = [-3.5, 2.8, -2.5, 1.5, -4.2, 2.2];
 
 // ── Project selection ─────────────────────────────────────────────
 // Pick 3 projects most relevant to the visitor's chosen industries,
@@ -280,17 +279,10 @@ function generateNote(type, item, quiz, index) {
 }
 
 // ── Card rendering ────────────────────────────────────────────────
-// Cards are distributed across two columns; SCATTER and NOTE_ROTS
-// are applied by animateCards() after the DOM is built.
+// Each card gets its own .results__item row. The note sits outside
+// the card in the side-padding zone; an SVG arrow links them.
 function buildCards(gridEl, quiz) {
-  const colA = document.createElement('div');
-  const colB = document.createElement('div');
-  colA.className = 'results__col';
-  colB.className = 'results__col';
-  gridEl.appendChild(colA);
-  gridEl.appendChild(colB);
-
-  const allCards = [];
+  const allItems = [];
 
   pickProjects(quiz).forEach((p, i) => {
     const noteText = generateNote('project', p, quiz, i);
@@ -299,14 +291,13 @@ function buildCards(gridEl, quiz) {
     card.innerHTML = `
       <img src="${p.poster || p.image}" alt="${p.title}" loading="lazy" decoding="async" />
       <div class="results__card-overlay">
-        <p class="results__note">${noteText}</p>
         <div class="results__card-meta">
           <p class="results__card-client">${p.client}</p>
           <h3 class="results__card-title">${p.title}</h3>
         </div>
       </div>
     `;
-    allCards.push(card);
+    allItems.push({ card, noteText });
   });
 
   INSIGHTS.forEach((insight, i) => {
@@ -319,46 +310,152 @@ function buildCards(gridEl, quiz) {
         <h3 class="results__card-title">${insight.title}</h3>
         <p class="results__card-body">${insight.body}</p>
       </div>
-      <p class="results__note">${noteText}</p>
     `;
-    allCards.push(card);
+    allItems.push({ card, noteText });
   });
 
-  // Distribute cards across two columns and apply note rotations
-  allCards.forEach((card, i) => {
-    const noteRot = NOTE_ROTS[i % NOTE_ROTS.length];
-    const note = card.querySelector('.results__note');
-    if (note) note.style.transform = `rotate(${noteRot}deg)`;
+  allItems.forEach(({ card, noteText }, i) => {
+    const pos = NOTE_POSITIONS[i % NOTE_POSITIONS.length];
+    const rot = NOTE_ROTS[i % NOTE_ROTS.length];
 
-    (i % 2 === 0 ? colA : colB).appendChild(card);
+    const item = document.createElement('div');
+    item.className = 'results__item';
+
+    // Note wrap — positioned in the side-padding zone, outside the card
+    const noteWrap = document.createElement('div');
+    noteWrap.className = 'results__note-wrap';
+    noteWrap.style.cssText = `${pos.css} width: ${pos.width};`;
+
+    const noteEl = document.createElement('p');
+    noteEl.className = 'results__note';
+    noteEl.style.transform = `rotate(${rot}deg)`;
+    noteEl.textContent = noteText;
+    noteWrap.appendChild(noteEl);
+
+    // SVG arrow — path is drawn by drawArrows() after animation completes
+    const svgWrapper = document.createElement('div');
+    svgWrapper.innerHTML = `<svg class="results__arrow" aria-hidden="true">
+      <defs>
+        <marker id="ah-${i}" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L0,8 L8,4 z" fill="currentColor" opacity="0.4" />
+        </marker>
+      </defs>
+      <path class="results__arrow-path" fill="none" stroke="currentColor" stroke-width="1.2"
+            marker-end="url(#ah-${i})" opacity="0.4" />
+    </svg>`;
+    const arrowSvg = svgWrapper.firstElementChild;
+
+    item.appendChild(card);
+    item.appendChild(noteWrap);
+    item.appendChild(arrowSvg);
+    gridEl.appendChild(item);
   });
 }
 
 function animateCards(gridEl) {
   const cards = Array.from(gridEl.querySelectorAll('.results__card'));
-  const notes = Array.from(gridEl.querySelectorAll('.results__note'));
+  const notes = Array.from(gridEl.querySelectorAll('.results__note-wrap'));
 
   if (prefersLessMotion()) {
-    cards.forEach((card, i) => {
-      const [rot, x, y] = SCATTER[i % SCATTER.length];
-      gsap.set(card, { rotation: rot, x, y, opacity: 1 });
-    });
+    gsap.set(cards, { opacity: 1 });
     gsap.set(notes, { opacity: 1 });
+    drawArrows(gridEl);
     return;
   }
 
-  // Cards stagger in from below with their final scatter position
+  // Cards stagger in from below
   cards.forEach((card, i) => {
-    const [rot, x, y] = SCATTER[i % SCATTER.length];
     gsap.fromTo(card,
-      { rotation: rot, x, y: y + 60, opacity: 0 },
-      { rotation: rot, x, y, opacity: 1, duration: 0.7, delay: i * 0.1, ease: 'power3.out' }
+      { y: 60, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.7, delay: i * 0.12, ease: 'power3.out' }
     );
   });
 
-  // Notes fade in after the cards have landed
+  // Notes fade in after cards land, then draw arrows
   gsap.fromTo(notes,
     { opacity: 0 },
-    { opacity: 1, duration: 0.5, stagger: 0.08, delay: cards.length * 0.1 + 0.3, ease: 'power2.out' }
+    {
+      opacity: 1,
+      duration: 0.5,
+      stagger: 0.1,
+      delay: cards.length * 0.12 + 0.3,
+      ease: 'power2.out',
+      onComplete: () => drawArrows(gridEl),
+    }
   );
+}
+
+function drawArrows(gridEl) {
+  Array.from(gridEl.querySelectorAll('.results__item')).forEach((item, i) => {
+    const card     = item.querySelector('.results__card');
+    const noteWrap = item.querySelector('.results__note-wrap');
+    const pathEl   = item.querySelector('.results__arrow-path');
+
+    const iRect = item.getBoundingClientRect();
+    const cRect = card.getBoundingClientRect();
+    const nRect = noteWrap.getBoundingClientRect();
+
+    // Convert to item-local coordinates
+    const local = r => ({
+      l:  r.left   - iRect.left,
+      t:  r.top    - iRect.top,
+      r:  r.right  - iRect.left,
+      b:  r.bottom - iRect.top,
+      cx: r.left + r.width  / 2 - iRect.left,
+      cy: r.top  + r.height / 2 - iRect.top,
+    });
+
+    const n = local(nRect);
+    const c = local(cRect);
+
+    // Arrow start: note center
+    const sx = n.cx;
+    const sy = n.cy;
+
+    // Arrow end: nearest card edge, clamped to avoid corners
+    let ex, ey;
+    if (nRect.right < cRect.left) {
+      ex = c.l;
+      ey = Math.max(c.t + 20, Math.min(c.b - 20, n.cy));
+    } else if (nRect.left > cRect.right) {
+      ex = c.r;
+      ey = Math.max(c.t + 20, Math.min(c.b - 20, n.cy));
+    } else if (nRect.bottom < cRect.top) {
+      ex = Math.max(c.l + 20, Math.min(c.r - 20, n.cx));
+      ey = c.t;
+    } else {
+      ex = Math.max(c.l + 20, Math.min(c.r - 20, n.cx));
+      ey = c.b;
+    }
+
+    // Shorten end so arrowhead sits at card edge (not inside)
+    const dx = ex - sx;
+    const dy = ey - sy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 10) return; // skip if note and card are too close
+    const trim = 6;
+    const fx = sx + dx * (dist - trim) / dist;
+    const fy = sy + dy * (dist - trim) / dist;
+
+    // Gentle quadratic bezier bow
+    const mx  = (sx + fx) / 2;
+    const my  = (sy + fy) / 2;
+    const bow = 0.22;
+    const cx2 = mx - (fy - sy) * bow;
+    const cy2 = my + (fx - sx) * bow;
+
+    const d = `M${sx.toFixed(1)},${sy.toFixed(1)} Q${cx2.toFixed(1)},${cy2.toFixed(1)} ${fx.toFixed(1)},${fy.toFixed(1)}`;
+    pathEl.setAttribute('d', d);
+
+    // Measure true path length and animate stroke draw
+    const length = pathEl.getTotalLength();
+    pathEl.style.strokeDasharray = length;
+    pathEl.style.strokeDashoffset = length;
+    gsap.to(pathEl, {
+      strokeDashoffset: 0,
+      duration: 0.7,
+      delay: i * 0.1,
+      ease: 'power2.inOut',
+    });
+  });
 }
