@@ -58,9 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const keywords = [...quiz.services, ...quiz.industries, ...quiz.goals];
+
   // Delay matches the enterPage blur dissolve so typing starts as it clears
   setTimeout(() => {
-    animateStatement(statementEl, buildStatement(quiz), () => {
+    animateStatement(statementEl, buildStatement(quiz), keywords, () => {
       buildCards(gridEl, quiz);
       animateCards(gridEl);
     });
@@ -94,9 +96,9 @@ function buildStatement({ services, industries, goals }) {
   return `${sentence1} ${sentence2}`;
 }
 
-function animateStatement(el, text, onDone) {
+function animateStatement(el, text, keywords, onDone) {
   if (prefersLessMotion()) {
-    el.textContent = text;
+    el.innerHTML = applyBoldHTML(text, keywords);
     if (onDone) onDone();
     return;
   }
@@ -121,9 +123,46 @@ function animateStatement(el, text, onDone) {
       stagger: 0.015,
       ease: 'power2.out',
       clearProps: 'filter',
-      onComplete: onDone,
+      onComplete: () => {
+        boldKeywordSpans(el, keywords);
+        if (onDone) onDone();
+      },
     }
   );
+}
+
+// After the typewriter renders, find word spans matching each keyword
+// and apply bold weight. Normalises both sides so punctuation and
+// slash-separated terms (e.g. "Manufacturing / industrial") still match.
+function boldKeywordSpans(el, keywords) {
+  const wordSpans = Array.from(
+    el.querySelectorAll('span[style*="white-space:nowrap"]')
+  );
+  const norm = s => s.toLowerCase().replace(/[^a-z]/g, '');
+  const spanNorms = wordSpans.map(s => norm(s.textContent));
+
+  keywords.forEach(keyword => {
+    const kwParts = keyword.toLowerCase().split(/\s+/).map(norm).filter(Boolean);
+    for (let i = 0; i <= spanNorms.length - kwParts.length; i++) {
+      if (kwParts.every((kw, j) => spanNorms[i + j] === kw)) {
+        for (let j = 0; j < kwParts.length; j++) {
+          wordSpans[i + j].style.fontWeight = '800';
+        }
+      }
+    }
+  });
+}
+
+// For reduced-motion: regex-wrap keywords in <strong> directly in the text
+function applyBoldHTML(text, keywords) {
+  let html = text;
+  [...keywords]
+    .sort((a, b) => b.length - a.length) // longest first prevents sub-matches
+    .forEach(kw => {
+      const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      html = html.replace(new RegExp(`(${escaped})`, 'gi'), '<strong>$1</strong>');
+    });
+  return html;
 }
 
 // ── Project selection ─────────────────────────────────────────────

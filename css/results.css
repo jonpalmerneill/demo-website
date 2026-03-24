@@ -65,6 +65,11 @@ html, body {
   margin-bottom: var(--space-16);
 }
 
+/* Bold keywords injected by results.js */
+.results__statement strong {
+  font-weight: 800;
+}
+
 /* ── Cards grid ─────────────────────────────────────────────────── */
 .results__grid {
   display: grid;
