@@ -98,7 +98,7 @@ function buildStatement({ services, industries, goals }) {
 
 function animateStatement(el, text, keywords, onDone) {
   if (prefersLessMotion()) {
-    el.innerHTML = applyBoldHTML(text, keywords);
+    el.innerHTML = applyKeywordHTML(text, keywords);
     if (onDone) onDone();
     return;
   }
@@ -131,9 +131,9 @@ function animateStatement(el, text, keywords, onDone) {
   );
 }
 
-// After the typewriter renders, find word spans matching each keyword
-// and apply bold weight. Normalises both sides so punctuation and
-// slash-separated terms (e.g. "Manufacturing / industrial") still match.
+// After the typewriter renders, find word spans matching each keyword and
+// inject an animated underline line that draws left-to-right via scaleX.
+// Normalises both sides so punctuation / slashes don't break matching.
 function boldKeywordSpans(el, keywords) {
   const wordSpans = Array.from(
     el.querySelectorAll('span[style*="white-space:nowrap"]')
@@ -145,22 +145,38 @@ function boldKeywordSpans(el, keywords) {
     const kwParts = keyword.toLowerCase().split(/\s+/).map(norm).filter(Boolean);
     for (let i = 0; i <= spanNorms.length - kwParts.length; i++) {
       if (kwParts.every((kw, j) => spanNorms[i + j] === kw)) {
-        for (let j = 0; j < kwParts.length; j++) {
-          wordSpans[i + j].style.fontWeight = '800';
-        }
+        kwParts.forEach((_, j) => {
+          const span = wordSpans[i + j];
+          span.style.position = 'relative';
+
+          const line = document.createElement('span');
+          line.className = 'results__underline';
+          span.appendChild(line);
+
+          // Stagger each word in a multi-word phrase by 60ms
+          gsap.to(line, {
+            scaleX: 1,
+            duration: 0.5,
+            ease: 'power2.out',
+            delay: j * 0.06,
+          });
+        });
       }
     }
   });
 }
 
-// For reduced-motion: regex-wrap keywords in <strong> directly in the text
-function applyBoldHTML(text, keywords) {
+// For reduced-motion: wrap keywords in a span that gets a static underline
+function applyKeywordHTML(text, keywords) {
   let html = text;
   [...keywords]
     .sort((a, b) => b.length - a.length) // longest first prevents sub-matches
     .forEach(kw => {
       const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(`(${escaped})`, 'gi'), '<strong>$1</strong>');
+      html = html.replace(
+        new RegExp(`(${escaped})`, 'gi'),
+        '<span class="results__keyword">$1</span>'
+      );
     });
   return html;
 }

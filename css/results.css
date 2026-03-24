@@ -65,9 +65,24 @@ html, body {
   margin-bottom: var(--space-16);
 }
 
-/* Bold keywords injected by results.js */
-.results__statement strong {
-  font-weight: 800;
+/* Animated underline drawn by results.js after the typewriter completes */
+.results__underline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.08em;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+/* Reduced-motion fallback: static underline */
+.results__keyword {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
 }
 
 /* ── Cards grid ─────────────────────────────────────────────────── */
