@@ -181,6 +181,20 @@ function applyKeywordHTML(text, keywords) {
   return html;
 }
 
+// Per-card scatter: [rotation (deg), x offset (px), y offset (px)]
+// Values are deterministic so the layout is consistent on reload.
+const SCATTER = [
+  [-2.5,  -8,   0],
+  [ 1.8,   6,  14],
+  [-3.2,   4,  -8],
+  [ 2.4, -10,   6],
+  [-1.6,   8, -10],
+  [ 3.0,  -4,   8],
+];
+
+// Small rotation applied to each handwritten note (independent of card)
+const NOTE_ROTS = [-1.5, 2.2, -2.0, 1.8, -2.5, 1.2];
+
 // ── Project selection ─────────────────────────────────────────────
 // Pick 3 projects most relevant to the visitor's chosen industries,
 // falling back to featured projects if there aren't enough matches.
@@ -194,7 +208,6 @@ function pickProjects({ industries }) {
     return img && !img.endsWith('.mp4');
   });
 
-  // Score by number of matching industries + a bonus for featured
   const scored = pool
     .map(p => ({
       p,
@@ -205,7 +218,6 @@ function pickProjects({ industries }) {
 
   const picked = scored.slice(0, 3).map(s => s.p);
 
-  // Fill any remaining slots with top featured projects
   if (picked.length < 3) {
     const usedIds = new Set(picked.map(p => p.id));
     const extras = pool
@@ -217,42 +229,136 @@ function pickProjects({ industries }) {
   return picked;
 }
 
+// ── Note generation ───────────────────────────────────────────────
+function generateNote(type, item, quiz, index) {
+  const { services, industries, goals } = quiz;
+  const g   = goals[index % Math.max(goals.length, 1)]       || goals[0]      || '';
+  const s   = services[index % Math.max(services.length, 1)] || services[0]   || '';
+  const ind = industries[index % Math.max(industries.length, 1)] || industries[0] || '';
+
+  if (type === 'project') {
+    const matchedLabel = industries.find(label => {
+      const id = INDUSTRY_MAP[label];
+      return id && item.industries.includes(id);
+    });
+
+    if (matchedLabel && g) {
+      return [
+        `${matchedLabel} work that speaks directly to your ${g.toLowerCase()} goal.`,
+        `This is what ${g.toLowerCase()} looks like in a ${matchedLabel.toLowerCase()} context.`,
+        `Your ${matchedLabel.toLowerCase()} focus × your ${g.toLowerCase()} goal — this is that overlap.`,
+      ][index % 3];
+    }
+    if (matchedLabel) {
+      return [
+        `Right in your ${matchedLabel.toLowerCase()} world.`,
+        `Your ${matchedLabel.toLowerCase()} work — this is the territory.`,
+        `A benchmark for ${matchedLabel.toLowerCase()} work done well.`,
+      ][index % 3];
+    }
+    if (g) {
+      return [
+        `Strong reference for your ${g.toLowerCase()} ambitions.`,
+        `Connects directly to your ${g.toLowerCase()} thinking.`,
+        `Relevant to anyone chasing ${g.toLowerCase()}.`,
+      ][index % 3];
+    }
+    return ['One of our sharpest pieces of work.', 'A benchmark project.', 'Worth a close look.'][index % 3];
+  }
+
+  if (type === 'insight') {
+    if (g) {
+      return [
+        `Useful context for your ${g.toLowerCase()} journey.`,
+        `We wrote this for clients chasing ${g.toLowerCase()}.`,
+        `A framework that maps directly to your ${g.toLowerCase()} goal.`,
+      ][index % 3];
+    }
+    if (s) return `Directly relevant to your ${s.toLowerCase()} work.`;
+    return 'Worth a close read.';
+  }
+}
+
 // ── Card rendering ────────────────────────────────────────────────
+// Cards are distributed across two columns; SCATTER and NOTE_ROTS
+// are applied by animateCards() after the DOM is built.
 function buildCards(gridEl, quiz) {
-  pickProjects(quiz).forEach(p => {
+  const colA = document.createElement('div');
+  const colB = document.createElement('div');
+  colA.className = 'results__col';
+  colB.className = 'results__col';
+  gridEl.appendChild(colA);
+  gridEl.appendChild(colB);
+
+  const allCards = [];
+
+  pickProjects(quiz).forEach((p, i) => {
+    const noteText = generateNote('project', p, quiz, i);
     const card = document.createElement('div');
     card.className = 'results__card results__card--project';
     card.innerHTML = `
       <img src="${p.poster || p.image}" alt="${p.title}" loading="lazy" decoding="async" />
-      <div class="results__card-info">
-        <p class="results__card-client">${p.client}</p>
-        <h3 class="results__card-title">${p.title}</h3>
+      <div class="results__card-overlay">
+        <p class="results__note">${noteText}</p>
+        <div class="results__card-meta">
+          <p class="results__card-client">${p.client}</p>
+          <h3 class="results__card-title">${p.title}</h3>
+        </div>
       </div>
     `;
-    gridEl.appendChild(card);
+    allCards.push(card);
   });
 
-  INSIGHTS.forEach(insight => {
+  INSIGHTS.forEach((insight, i) => {
+    const noteText = generateNote('insight', insight, quiz, i);
     const card = document.createElement('div');
     card.className = 'results__card results__card--insight';
     card.innerHTML = `
-      <span class="results__card-tag">${insight.tag}</span>
-      <h3 class="results__card-title">${insight.title}</h3>
-      <p class="results__card-body">${insight.body}</p>
+      <div class="results__card-content">
+        <span class="results__card-tag">${insight.tag}</span>
+        <h3 class="results__card-title">${insight.title}</h3>
+        <p class="results__card-body">${insight.body}</p>
+      </div>
+      <p class="results__note">${noteText}</p>
     `;
-    gridEl.appendChild(card);
+    allCards.push(card);
+  });
+
+  // Distribute cards across two columns and apply note rotations
+  allCards.forEach((card, i) => {
+    const noteRot = NOTE_ROTS[i % NOTE_ROTS.length];
+    const note = card.querySelector('.results__note');
+    if (note) note.style.transform = `rotate(${noteRot}deg)`;
+
+    (i % 2 === 0 ? colA : colB).appendChild(card);
   });
 }
 
 function animateCards(gridEl) {
   const cards = Array.from(gridEl.querySelectorAll('.results__card'));
+  const notes = Array.from(gridEl.querySelectorAll('.results__note'));
+
   if (prefersLessMotion()) {
-    gsap.set(cards, { opacity: 1, y: 0 });
+    cards.forEach((card, i) => {
+      const [rot, x, y] = SCATTER[i % SCATTER.length];
+      gsap.set(card, { rotation: rot, x, y, opacity: 1 });
+    });
+    gsap.set(notes, { opacity: 1 });
     return;
   }
-  gsap.fromTo(
-    cards,
-    { opacity: 0, y: 48 },
-    { opacity: 1, y: 0, duration: 0.65, stagger: 0.1, ease: 'power3.out' }
+
+  // Cards stagger in from below with their final scatter position
+  cards.forEach((card, i) => {
+    const [rot, x, y] = SCATTER[i % SCATTER.length];
+    gsap.fromTo(card,
+      { rotation: rot, x, y: y + 60, opacity: 0 },
+      { rotation: rot, x, y, opacity: 1, duration: 0.7, delay: i * 0.1, ease: 'power3.out' }
+    );
+  });
+
+  // Notes fade in after the cards have landed
+  gsap.fromTo(notes,
+    { opacity: 0 },
+    { opacity: 1, duration: 0.5, stagger: 0.08, delay: cards.length * 0.1 + 0.3, ease: 'power2.out' }
   );
 }

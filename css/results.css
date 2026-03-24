@@ -85,19 +85,35 @@ html, body {
   text-underline-offset: 4px;
 }
 
-/* ── Cards grid ─────────────────────────────────────────────────── */
+/* ── Two-column scattered layout ────────────────────────────────── */
 .results__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-4);
+  display: flex;
+  gap: var(--space-12);
+  align-items: flex-start;
+  /* overflow visible so rotated cards don't clip */
+  overflow: visible;
+  padding: var(--space-4) var(--space-4) var(--space-16);
+}
+
+.results__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+/* Second column starts lower for an offset/erratic feel */
+.results__col:nth-child(2) {
+  margin-top: 60px;
 }
 
 /* ── Shared card base ───────────────────────────────────────────── */
 .results__card {
   border-radius: var(--radius-lg);
   overflow: hidden;
-  aspect-ratio: 3 / 4;
-  will-change: opacity, transform;
+  aspect-ratio: 3 / 2;
+  will-change: transform, opacity;
+  /* GSAP manages transform — no CSS transition on it */
 }
 
 /* ── Project card ───────────────────────────────────────────────── */
@@ -105,6 +121,7 @@ html, body {
   position: relative;
   background: var(--c-surface);
   cursor: pointer;
+  overflow: hidden;
 }
 
 .results__card--project img {
@@ -119,14 +136,27 @@ html, body {
   transform: scale(1.04);
 }
 
-.results__card-info {
+/* Gradient overlay covering bottom 65% of image */
+.results__card-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   padding: var(--space-6);
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, transparent 100%);
-  color: #fff;
+  gap: var(--space-4);
+}
+
+.results__card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .results__card-client {
@@ -134,8 +164,7 @@ html, body {
   font-size: var(--text-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.65;
-  margin-bottom: var(--space-1);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .results__card--project .results__card-title {
@@ -150,13 +179,11 @@ html, body {
 .results__card--insight {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   padding: var(--space-8);
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  gap: var(--space-6);
-  transition:
-    border-color var(--dur-fast) var(--ease-smooth),
-    background   var(--dur-fast) var(--ease-smooth);
+  transition: border-color var(--dur-fast) var(--ease-smooth);
 }
 
 .results__card--insight:hover {
@@ -165,6 +192,12 @@ html, body {
 
 [data-theme="light"] .results__card--insight:hover {
   border-color: var(--c-text-muted);
+}
+
+.results__card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .results__card-tag {
@@ -187,7 +220,6 @@ html, body {
   line-height: 1.25;
   letter-spacing: -0.01em;
   color: var(--c-text);
-  flex: 1;
 }
 
 .results__card-body {
@@ -197,23 +229,46 @@ html, body {
   color: var(--c-text-muted);
 }
 
-/* ── Responsive ─────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  .results__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* ── Handwritten note ────────────────────────────────────────────── */
+/* Rotation is set per-card via inline style in results.js */
+.results__note {
+  font-family: 'Caveat', cursive;
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.35;
+  display: inline-block; /* so transform applies cleanly */
 }
 
-@media (max-width: 560px) {
+/* On project cards: note sits inside the gradient overlay above the title */
+.results__card--project .results__note {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* On insight cards: note sits below the content, visually separated */
+.results__card--insight .results__note {
+  color: var(--c-text-muted);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--c-border);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 700px) {
   .results {
     padding-top: 90px;
   }
 
   .results__grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
+  .results__col:nth-child(2) {
+    margin-top: 0;
   }
 
   .results__card {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
   }
 }
