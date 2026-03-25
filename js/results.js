@@ -410,10 +410,6 @@ function drawArrows(gridEl) {
     const n = local(nRect);
     const c = local(cRect);
 
-    // Arrow start: note center
-    const sx = n.cx;
-    const sy = n.cy;
-
     // Arrow end: nearest card edge, clamped to avoid corners
     let ex, ey;
     if (nRect.right < cRect.left) {
@@ -428,6 +424,18 @@ function drawArrows(gridEl) {
     } else {
       ex = Math.max(c.l + 20, Math.min(c.r - 20, n.cx));
       ey = c.b;
+    }
+
+    // Arrow start: note edge facing the card (keeps path clear of text)
+    let sx, sy;
+    if (nRect.right < cRect.left) {
+      sx = n.r;  sy = n.cy;  // note is left  → start from its right edge
+    } else if (nRect.left > cRect.right) {
+      sx = n.l;  sy = n.cy;  // note is right → start from its left edge
+    } else if (nRect.bottom < cRect.top) {
+      sx = n.cx; sy = n.b;   // note is above → start from its bottom edge
+    } else {
+      sx = n.cx; sy = n.t;   // note is below → start from its top edge
     }
 
     // Shorten end so arrowhead sits at card edge (not inside)
