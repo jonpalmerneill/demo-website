@@ -235,7 +235,7 @@ html, body {
 
 .results__note {
   font-family: 'Caveat', cursive;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 400;
   line-height: 1.4;
   color: var(--c-text-muted);
