@@ -93,18 +93,23 @@ html, body {
 }
 
 /* ── Item row — side zones hold the floating notes ───────────────── */
+/* No horizontal padding here — card controls its own width instead  */
 .results__item {
   position: relative;
-  padding: var(--space-10) 18%;
+  padding: var(--space-10) 0;
   overflow: visible;
 }
 
 /* ── Shared card base ───────────────────────────────────────────── */
+/* 65% width leaves 17.5% side zones on each side for notes.
+   Note positions (2% + 12% wide) give a ~3.5% gap → 26–36px depending
+   on screen width, always within the 20–60px target range.           */
 .results__card {
   border-radius: var(--radius-lg);
   overflow: hidden;
   aspect-ratio: 3 / 2;
-  width: 100%;
+  width: 65%;
+  margin: 0 auto;
   will-change: transform, opacity;
 }
 
@@ -248,7 +253,7 @@ html, body {
 }
 
 /* ── Responsive ─────────────────────────────────────────────────── */
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   .results {
     padding-top: 90px;
   }
@@ -257,13 +262,14 @@ html, body {
     padding: var(--space-6) 0;
   }
 
-  /* Notes and arrows need side space — hide on mobile */
+  /* Side zones are too narrow below 800px — hide notes and arrows */
   .results__note-wrap,
   .results__arrow {
     display: none;
   }
 
   .results__card {
+    width: 100%;
     aspect-ratio: 16 / 9;
   }
 }

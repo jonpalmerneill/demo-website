@@ -181,14 +181,16 @@ function applyKeywordHTML(text, keywords) {
   return html;
 }
 
-// Per-item note positions — alternates left/right, varies vertical placement
+// Per-item note positions — percentage-based so gap scales with screen width.
+// Card is centred at 65% item width → side zones are 17.5% each.
+// Notes at left/right 2% with width 12% → guaranteed ~3.5% gap to card edge.
 const NOTE_POSITIONS = [
-  { css: 'left: 12px; top: 20%;',     width: '140px' },
-  { css: 'right: 12px; top: 8%;',     width: '140px' },
-  { css: 'left: 8px; top: 50%;',      width: '145px' },
-  { css: 'right: 8px; top: 35%;',     width: '140px' },
-  { css: 'left: 12px; bottom: 18%;',  width: '140px' },
-  { css: 'right: 12px; bottom: 22%;', width: '140px' },
+  { css: 'left: 2%; top: 22%;',     width: '12%' },
+  { css: 'right: 2%; top: 10%;',    width: '12%' },
+  { css: 'left: 2%; top: 52%;',     width: '12%' },
+  { css: 'right: 2%; top: 38%;',    width: '12%' },
+  { css: 'left: 2%; bottom: 20%;',  width: '12%' },
+  { css: 'right: 2%; bottom: 14%;', width: '12%' },
 ];
 
 // Small rotation applied to each handwritten note
