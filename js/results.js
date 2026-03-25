@@ -196,6 +196,18 @@ const NOTE_POSITIONS = [
 // Small rotation applied to each handwritten note
 const NOTE_ROTS = [-3.5, 2.8, -2.5, 1.5, -4.2, 2.2];
 
+// Per-card scatter: [x offset (px), rotation (deg)]
+// Even items have notes on the left  → positive x shifts card right (widens gap)
+// Odd  items have notes on the right → negative x shifts card left  (widens gap)
+const CARD_OFFSETS = [
+  [ 32, -0.6],
+  [-26,  0.5],
+  [ 22, -0.4],
+  [-38,  0.7],
+  [ 28, -0.5],
+  [-18,  0.4],
+];
+
 // ── Project selection ─────────────────────────────────────────────
 // Pick 3 projects most relevant to the visitor's chosen industries,
 // falling back to featured projects if there aren't enough matches.
@@ -355,43 +367,58 @@ function buildCards(gridEl, quiz) {
 }
 
 function animateCards(gridEl) {
-  const cards = Array.from(gridEl.querySelectorAll('.results__card'));
-  const notes = Array.from(gridEl.querySelectorAll('.results__note-wrap'));
+  const items  = Array.from(gridEl.querySelectorAll('.results__item'));
+  const cards  = items.map(item => item.querySelector('.results__card'));
+  const noteWs = items.map(item => item.querySelector('.results__note-wrap'));
+
+  // Apply scatter offsets + set initial invisible state
+  cards.forEach((card, i) => {
+    const [x, rot] = CARD_OFFSETS[i % CARD_OFFSETS.length];
+    gsap.set(card, { x, rotation: rot, y: 60, opacity: 0 });
+  });
+  noteWs.forEach(nw => nw && gsap.set(nw, { opacity: 0 }));
 
   if (prefersLessMotion()) {
-    gsap.set(cards, { opacity: 1 });
-    gsap.set(notes, { opacity: 1 });
+    cards.forEach(card => gsap.set(card, { y: 0, opacity: 1 }));
+    noteWs.forEach(nw => nw && gsap.set(nw, { opacity: 1 }));
     drawArrows(gridEl);
     return;
   }
 
-  // Cards stagger in from below
-  cards.forEach((card, i) => {
-    gsap.fromTo(card,
-      { y: 60, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.7, delay: i * 0.12, ease: 'power3.out' }
-    );
-  });
+  // Each card reveals when it scrolls into view
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      observer.unobserve(entry.target);
 
-  // Notes fade in after cards land, then draw arrows
-  gsap.fromTo(notes,
-    { opacity: 0 },
-    {
-      opacity: 1,
-      duration: 0.5,
-      stagger: 0.1,
-      delay: cards.length * 0.12 + 0.3,
-      ease: 'power2.out',
-      onComplete: () => drawArrows(gridEl),
-    }
-  );
+      const card = entry.target;
+      const idx  = cards.indexOf(card);
+      const nw   = noteWs[idx];
+      const item = items[idx];
+
+      gsap.to(card, {
+        y: 0, opacity: 1,
+        duration: 0.75,
+        ease: 'power3.out',
+        onComplete: () => {
+          if (!nw) { drawArrow(item, idx); return; }
+          gsap.to(nw, {
+            opacity: 1, duration: 0.45, ease: 'power2.out',
+            onComplete: () => drawArrow(item, idx),
+          });
+        },
+      });
+    });
+  }, { threshold: 0.15 });
+
+  cards.forEach(card => observer.observe(card));
 }
 
-function drawArrows(gridEl) {
-  Array.from(gridEl.querySelectorAll('.results__item')).forEach((item, i) => {
-    const card     = item.querySelector('.results__card');
-    const noteWrap = item.querySelector('.results__note-wrap');
-    const pathEl   = item.querySelector('.results__arrow-path');
+// Draw the arrow for a single item (called after its card + note have animated in)
+function drawArrow(item, i) {
+  const card     = item.querySelector('.results__card');
+  const noteWrap = item.querySelector('.results__note-wrap');
+  const pathEl   = item.querySelector('.results__arrow-path');
 
     const iRect = item.getBoundingClientRect();
     const cRect = card.getBoundingClientRect();
@@ -464,8 +491,13 @@ function drawArrows(gridEl) {
     gsap.to(pathEl, {
       strokeDashoffset: 0,
       duration: 0.7,
-      delay: i * 0.1,
       ease: 'power2.inOut',
     });
+}
+
+// Convenience wrapper — draws all arrows at once (used by reduced-motion path)
+function drawArrows(gridEl) {
+  Array.from(gridEl.querySelectorAll('.results__item')).forEach((item, i) => {
+    drawArrow(item, i);
   });
 }
